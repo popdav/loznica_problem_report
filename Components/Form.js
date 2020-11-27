@@ -7,6 +7,8 @@ import {
   ScrollView,
   Button,
   Image,
+  Modal,
+  TouchableOpacity,
 } from 'react-native';
 
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
@@ -14,6 +16,7 @@ import {faLocationArrow} from '@fortawesome/free-solid-svg-icons';
 import ImagePicker from 'react-native-image-crop-picker';
 import Geolocation from '@react-native-community/geolocation';
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
+import {RNCamera} from 'react-native-camera';
 
 class Form extends React.Component {
   constructor(props) {
@@ -36,6 +39,8 @@ class Form extends React.Component {
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
       },
+      cameraGalleryForm: false,
+      showCamera: false,
       locationEdit: false,
       selectedImage: false,
       fullMap: false,
@@ -96,11 +101,20 @@ class Form extends React.Component {
         cropping: true,
       });
       console.log(img);
-      this.setState({selectedImage: img.path});
+      this.setState({selectedImage: img.path, cameraGalleryForm: false});
     } catch (e) {
       console.log(e);
     }
   };
+
+  openCameraGalleryForm = () => {
+    this.setState({cameraGalleryForm: !this.state.cameraGalleryForm});
+  };
+
+  openCamera = () => {
+    this.setState({showCamera: !this.state.showCamera});
+  };
+
   fullMap = () => {
     this.setState({
       fullMap: !this.state.fullMap,
@@ -162,11 +176,59 @@ class Form extends React.Component {
             marginTop: '5%',
             alignItems: 'center',
           }}>
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={this.state.cameraGalleryForm}
+            onRequestClose={() => {}}>
+            <View
+              style={{
+                marginTop: '50%',
+                maxHeight: '25%',
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                shadowOpacity: 0.25,
+                shadowRadius: 3.84,
+                elevation: 5,
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 2,
+                },
+                backgroundColor: 'white',
+                borderRadius: 20,
+                padding: 35,
+              }}>
+              <View style={{marginTop: '5%'}}>
+                <Button
+                  title="Otvori galeriju"
+                  color={this.state.color}
+                  onPress={this.openGallery}
+                />
+              </View>
+              <View style={{marginTop: '5%'}}>
+                <Button
+                  title="Otvori kameru"
+                  color={this.state.color}
+                  onPress={this.openCamera}
+                />
+              </View>
+              <View style={{marginTop: '5%'}}>
+                <Button
+                  title="Zatvori"
+                  color={this.state.color}
+                  onPress={this.openCameraGalleryForm}
+                />
+              </View>
+            </View>
+          </Modal>
           <Button
             style={{marginTop: '5%'}}
             title="Dodaj sliku"
             color={this.state.color}
-            onPress={this.openGallery}
+            onPress={this.openCameraGalleryForm}
+            disabled={this.state.cameraGalleryForm}
           />
           {this.state.selectedImage ? this.renderImage() : <Text />}
         </View>
@@ -181,6 +243,7 @@ class Form extends React.Component {
             title="Sačuvaj"
             color={this.state.color}
             onPress={this.onSave}
+            disabled={this.state.cameraGalleryForm}
           />
         </View>
       </View>
@@ -232,13 +295,80 @@ class Form extends React.Component {
               this.state.fullMap ? 'Sačuvaj izmenu' : 'Promeni lokaciju na mapi'
             }
             onPress={this.fullMap}
+            disabled={this.state.cameraGalleryForm}
           />
         </View>
       </View>
     );
   };
-  renderAll = () => {
+
+  takePicture = async () => {
+    if (this.camera) {
+      const options = {quality: 0.5, base64: true};
+      const data = await this.camera.takePictureAsync(options);
+      console.log(data.uri);
+      this.setState({selectedImage: data.uri, cameraGalleryForm: false, showCamera: false});
+    }
+  };
+
+  renderCamera = () => {
     return (
+      <View
+        style={{
+          flex: 1,
+          flexDirection: 'column',
+          backgroundColor: 'black',
+        }}>
+        <RNCamera
+          ref={(ref) => {
+            this.camera = ref;
+          }}
+          style={{
+            flex: 1,
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+          }}
+          type={RNCamera.Constants.Type.back}
+          flashMode={RNCamera.Constants.FlashMode.on}
+          androidCameraPermissionOptions={{
+            title: 'Permission to use camera',
+            message: 'We need your permission to use your camera',
+            buttonPositive: 'Ok',
+            buttonNegative: 'Cancel',
+          }}
+          androidRecordAudioPermissionOptions={{
+            title: 'Permission to use audio recording',
+            message: 'We need your permission to use your audio',
+            buttonPositive: 'Ok',
+            buttonNegative: 'Cancel',
+          }}
+          onGoogleVisionBarcodesDetected={({barcodes}) => {
+            console.log(barcodes);
+          }}
+        />
+        <View style={{flex: 0, flexDirection: 'row', justifyContent: 'center'}}>
+          <TouchableOpacity
+            onPress={this.takePicture.bind(this)}
+            style={{
+              flex: 0,
+              backgroundColor: '#fff',
+              borderRadius: 5,
+              padding: 15,
+              paddingHorizontal: 20,
+              alignSelf: 'center',
+              margin: 20,
+            }}>
+            <Text style={{fontSize: 14}}> SNAP </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  renderAll = () => {
+    return this.state.showCamera ? (
+      this.renderCamera()
+    ) : (
       <ScrollView>
         {this.renderMap()}
         {this.renderForm()}

@@ -13,7 +13,9 @@ class Card extends React.Component {
           height: 150,
         }}
         onPress={() =>
-          this.props.navigation.navigate('Form', {color: this.props.color})
+          this.props.navigation.navigate(this.props.navigateTo, {
+            color: this.props.color,
+          })
         }>
         <View
           style={{

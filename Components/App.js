@@ -3,15 +3,25 @@ import {View, PermissionsAndroid} from 'react-native';
 import Menu from './Menu';
 import Bar from './Bar';
 import Form from './Form';
+import Login from './Login';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 const Stack = createStackNavigator();
 
-function HomeScreen({navigation}) {
+function LoginScreen({navigation, route}) {
   return (
     <View>
       <Bar />
-      <Menu navigation={navigation} />
+      <Login navigation={navigation} route={route} />
+    </View>
+  );
+}
+
+function HomeScreen({navigation, route}) {
+  return (
+    <View>
+      <Bar />
+      <Menu navigation={navigation} route={route} />
     </View>
   );
 }
@@ -51,7 +61,14 @@ class App extends React.Component {
             options={{
               headerShown: false,
             }}
-            name="Menu"
+            name="Login"
+            component={LoginScreen}
+          />
+          <Stack.Screen
+            options={{
+              headerShown: false,
+            }}
+            name="First"
             component={HomeScreen}
           />
           <Stack.Screen

@@ -307,7 +307,11 @@ class Form extends React.Component {
       const options = {quality: 0.5, base64: true};
       const data = await this.camera.takePictureAsync(options);
       console.log(data.uri);
-      this.setState({selectedImage: data.uri, cameraGalleryForm: false, showCamera: false});
+      this.setState({
+        selectedImage: data.uri,
+        cameraGalleryForm: false,
+        showCamera: false,
+      });
     }
   };
 

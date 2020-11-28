@@ -15,6 +15,8 @@ class Card extends React.Component {
         onPress={() =>
           this.props.navigation.navigate(this.props.navigateTo, {
             color: this.props.color,
+            data: this.props.data,
+            // addToData: this.props.addToData,
           })
         }>
         <View

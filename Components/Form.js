@@ -22,6 +22,7 @@ class Form extends React.Component {
   constructor(props) {
     super(props);
     let propsColor = props.route.params ? props.route.params.color : 'blue';
+    this.addToData = props.route.params ? props.route.params.addToData : null;
     props.navigation.setOptions({
       title: propsColor === 'red' ? 'Vanredne situacija' : 'Komunalni problemi',
     });
@@ -51,8 +52,6 @@ class Form extends React.Component {
           marginLeft: '10%',
           marginRight: '10%',
           marginTop: '20%',
-          // width: 400,
-          // justifyContent: 'flex-end',
           alignItems: 'center',
         },
         map: {
@@ -142,6 +141,21 @@ class Form extends React.Component {
     this.setState({desc: text});
   };
   onSave = () => {
+    let body = {
+      id: 15,
+      name: this.state.name,
+      municipality: '',
+      pueblo: '',
+      street: '',
+      stNumber: '',
+      longitude: this.state.position.longitude, //x
+      latitude: this.state.position.latitude, //y
+      date: new Date().toString(),
+      desc: this.state.desc,
+      img: this.state.selectedImage,
+    };
+    console.log(body)
+    this.props.addToData(body);
     this.setState({desc: '', name: '', selectedImage: false});
     this.getPosition();
   };

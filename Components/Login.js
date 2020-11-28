@@ -26,7 +26,7 @@ class Login extends React.Component {
 
   clickAsGuest = () => {
     console.log('click');
-    this.props.navigation.navigate('Menu', {admin: false});
+    this.props.navigation.navigate('First', {admin: false});
   };
 
   clickLogin = () => {
